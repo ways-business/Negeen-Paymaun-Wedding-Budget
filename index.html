@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Negeen &amp; Paymaun · Wedding Budget</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,380;0,9..144,560;0,9..144,680;1,9..144,500&family=Karla:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="page">
+
+  <header class="masthead">
+    <img class="masthead-watermark" src="assets/m_logo.svg" alt="">
+    <div class="masthead-row">
+      <div class="masthead-text">
+        <img class="brand-logo-inline" src="assets/logo.svg" alt="Maison De La Fork">
+        <h1 style="line-height:1.2; letter-spacing:0;">Negeen &amp; Paymaun<br>Wedding</h1>
+        <span class="brand-sub">Wedding Budget · Thursday, December 31, 2026</span>
+        <p class="masthead-note">Berenjak, Los Angeles<br>Prepared September 29, 2026</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="summary-bar" aria-label="Budget summary">
+    <div class="summary-field">
+      <label for="guestCount">Guest count</label>
+      <input type="number" id="guestCount" value="120" min="1" step="1">
+    </div>
+    <div class="summary-field">
+      <label for="totalBudget">Total budget</label>
+      <div class="currency-input"><span>$</span><input type="number" id="totalBudget" value="150000" min="0" step="any" aria-label="Total budget"></div>
+    </div>
+    <div class="summary-readout">
+      <span class="readout-label">Costs entered so far</span>
+      <span class="readout-value"><span id="totalRangeOut">—</span></span>
+    </div>
+    <div class="variance-pill" id="variancePill">
+      <span class="pill-dot"></span>
+      <span id="varianceText">—</span>
+    </div>
+  </section>
+
+  <main class="layout">
+
+    <section class="table-panel">
+      <h2>Category Breakdown</h2>
+      <p class="panel-sub">Confirmed and estimated costs from the September 29, 2026 planning worksheet.</p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th class="num">Estimated Cost</th>
+              <th class="num">% of budget</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="categoryBody"></tbody>
+          <tfoot>
+            <tr class="row-editable">
+              <td class="cat-name" data-label="Category">Contingency (listed above)
+                <input type="hidden" id="contingencyPct" value="" aria-hidden="true">
+              </td>
+              <td class="num locked" id="contingencyLowOut" data-label="Estimated Cost">—</td>
+              <td class="num pct" data-label="% of budget">—</td>
+              <td data-label="Status"></td>
+            </tr>
+            <tr class="row-subtotal">
+              <td class="cat-name" data-label="Category">Subtotal</td>
+              <td class="num" id="subtotalLowOut" data-label="Estimated Cost">—</td>
+              <td class="num pct" id="subtotalPctOut" data-label="% of budget">—</td>
+              <td></td>
+            </tr>
+            <tr class="row-editable">
+              <td class="cat-name" data-label="Category">Additional Planner Fee (optional)
+                <span class="pct-input"><input type="number" id="plannerPct" value="" step="0.5" min="0" aria-label="Additional planner fee percent of subtotal">%</span>
+              </td>
+              <td class="num locked" id="plannerLowOut" data-label="Estimated Cost">—</td>
+              <td class="num pct" data-label="% of budget">—</td>
+              <td data-label="Status"></td>
+            </tr>
+            <tr class="row-total">
+              <td class="cat-name" data-label="Category">Total</td>
+              <td class="num" id="totalLowOut" data-label="Estimated Cost">—</td>
+              <td class="num pct" id="totalPctOut" data-label="% of budget">—</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="foot-actions">
+        <span class="save-status" id="saveStatus" aria-live="polite"></span>
+        <button class="reset-link" id="resetBtn" type="button">Reset to original estimate</button>
+      </div>
+    </section>
+
+    <aside>
+      <div class="card">
+        <h2>Where the Budget Goes</h2>
+        <p class="panel-sub">Ranked by average estimate.</p>
+        <div id="chart"></div>
+      </div>
+
+      <div class="card">
+        <h2>Totals</h2>
+        <div class="totals-list">
+          <div class="totals-row">
+            <span class="label">Subtotal Estimated</span>
+            <span class="value" id="t-subtotal">—</span>
+          </div>
+          <div class="totals-row">
+            <span class="label">Additional Planner Fee (optional)</span>
+            <span class="value" id="t-planner">—</span>
+          </div>
+          <div class="totals-row emph">
+            <span class="label">Costs Entered So Far</span>
+            <span class="value" id="t-total">—</span>
+          </div>
+          <div class="totals-row">
+            <span class="label">Total Budget</span>
+            <span class="value" id="t-budget">—</span>
+          </div>
+          <div class="totals-row">
+            <span class="label">Variance vs. Budget</span>
+            <span class="value" id="t-variance">—</span>
+          </div>
+          <div class="totals-row">
+            <span class="label">Approx. cost per guest</span>
+            <span class="value" id="t-perguest">—</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <footer class="mdlf-footer">
+    <img class="footer-cupid" src="assets/Masion de la Fork_Cupid.png" alt="Maison De La Fork Cupid">
+    <div class="footer-brand">
+      <div class="footer-title">MAISON DE LA FORK</div>
+      <div class="footer-subtitle">Event Planning · Design · Production</div>
+    </div>
+    <div class="footer-contact">
+      <div><a href="https://www.maisondelafork.com" target="_blank" rel="noopener noreferrer">WWW.MAISONDELAFORK.COM</a></div>
+      <div>25722 Commercentre Dr. Lake Forest, CA 92630</div>
+    </div>
+    <div class="footer-copy">© 2026 Maison De La Fork. All Rights Reserved.</div>
+  </footer>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
