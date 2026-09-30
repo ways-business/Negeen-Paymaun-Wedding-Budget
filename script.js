@@ -3,12 +3,11 @@
 
   var ORIGINAL = {
     guestCount: 120,
-    totalBudget: 150000,
-    contingencyPct: null,
+    totalBudget: 200000,
     plannerPct: null,
     categories: [
       { key:"venue",       name:"Venue + F&B package", low:72000, status:"Confirmed",
-        note:"Provider: Soho House / Berenjak. Includes the $5,000 venue fee and $45,000 F&B minimum; $22,000 remains to be clarified with Berenjak." },
+        note:"Provider: Soho House / Berenjak. Includes venue fee and F&B." },
       { key:"room",        name:"Soho room (1)", low:980, status:"Confirmed",
         note:"Provider: Soho House" },
       { key:"sofreh",      name:"Sofreh", low:7000, status:"Confirmed",
@@ -23,36 +22,36 @@
         note:"Provider: Michelle Sobel" },
       { key:"security",    name:"Security", low:700, status:"Confirmed",
         note:"Provider: TBD" },
-      { key:"floral",      name:"Florals (red roses)", low:15000, status:"Estimate",
+      { key:"floral",      name:"Florals", low:25000, status:"Estimate",
         note:"Provider: TBD" },
-      { key:"rentals",     name:"Rentals & linens", low:6000, status:"Estimate",
+      { key:"attire",      name:"Attire (bride & groom)", low:15000, status:"Estimate",
         note:"Provider: TBD" },
-      { key:"decor",       name:"Décor & installations", low:5000, status:"Estimate",
+      { key:"rentals",     name:"Rentals", low:10000, status:"Estimate",
         note:"Provider: TBD" },
-      { key:"video",       name:"Videography", low:4500, status:"Estimate",
+      { key:"decor",       name:"Décor & installations", low:9000, status:"Estimate",
         note:"Provider: TBD" },
-      { key:"stationery",  name:"Stationery & paper goods", low:3500, status:"Estimate",
+      { key:"video",       name:"Videography", low:10000, status:"Estimate",
         note:"Provider: TBD" },
-      { key:"lighting",    name:"Lighting & candles", low:2000, status:"Estimate",
+      { key:"stationery",  name:"Stationery & paper goods", low:5000, status:"Estimate",
         note:"Provider: TBD" },
-      { key:"gratuities",  name:"Gratuities", low:2500, status:"Estimate",
+      { key:"gratuities",  name:"Gratuities", low:4000, status:"Estimate",
         note:"Provider: Vendor tips" },
-      { key:"hairmakeup",  name:"Hair & makeup", low:1500, status:"Estimate",
+      { key:"hairmakeup",  name:"Hair & makeup", low:2500, status:"Estimate",
         note:"Provider: TBD" },
-      { key:"transport",   name:"Transportation", low:1200, status:"Estimate",
+      { key:"newyear",     name:"New Year's extras", low:2500, status:"Estimate",
         note:"Provider: TBD" },
-      { key:"newyear",     name:"New Year's extras", low:1000, status:"Estimate",
+      { key:"transport",   name:"Transportation", low:2000, status:"Estimate",
         note:"Provider: TBD" },
-      { key:"officiant",   name:"Officiant", low:800, status:"Estimate",
+      { key:"cameras",     name:"Cameras (Polaroid + disposable)", low:1200, status:"Estimate",
         note:"Provider: TBD" },
-      { key:"cameras",     name:"Cameras (Polaroid + disposable)", low:800, status:"Estimate",
+      { key:"officiant",   name:"Officiant", low:1000, status:"Estimate",
         note:"Provider: TBD" },
-      { key:"contingency", name:"Contingency", low:6766, status:"Estimate",
+      { key:"contingency", name:"Contingency", low:13366, status:"Estimate",
         note:"Provider: Buffer" }
     ]
   };
 
-  var STORAGE_KEY = "mdlf_negeen_paymaun_budget_v2";
+  var STORAGE_KEY = "mdlf_negeen_paymaun_budget_v3";
 
   // ============================================================================
   // REMOTE STORAGE — ACTION REQUIRED FOR THE SITE DEVELOPER
@@ -84,35 +83,34 @@
 
   function inputValue(value){ return value === null ? "" : value; }
 
+  function mergeState(parsed){
+    if (!parsed || !Array.isArray(parsed.categories)) return cloneOriginal();
+
+    // Keep the current category list and fixed confirmed amounts, while retaining
+    // editable values saved by an earlier version of the page.
+    var fresh = cloneOriginal();
+    fresh.guestCount = Number(parsed.guestCount) > 0 ? Number(parsed.guestCount) : fresh.guestCount;
+    fresh.totalBudget = optionalAmount(parsed.totalBudget);
+    fresh.plannerPct = optionalAmount(parsed.plannerPct);
+
+    var savedByKey = {};
+    parsed.categories.forEach(function(c){
+      if (c && c.key) savedByKey[c.key] = c;
+    });
+    fresh.categories.forEach(function(c){
+      var savedCat = savedByKey[c.key];
+      if (!savedCat || String(c.status).toLowerCase() === "confirmed") return;
+      c.low = optionalAmount(savedCat.low);
+      c.high = c.low;
+    });
+    return fresh;
+  }
+
   function loadState(){
     try {
       var saved = localStorage.getItem(STORAGE_KEY);
-      if (!saved) return cloneOriginal();
-
-      var parsed = JSON.parse(saved);
-      if (!parsed || !Array.isArray(parsed.categories)) return cloneOriginal();
-
-      // Merge saved values into the current structure so future HTML updates stay compatible.
-      var fresh = cloneOriginal();
-      fresh.guestCount = Number(parsed.guestCount) > 0 ? Number(parsed.guestCount) : fresh.guestCount;
-      fresh.totalBudget = optionalAmount(parsed.totalBudget);
-      fresh.contingencyPct = optionalAmount(parsed.contingencyPct);
-      fresh.plannerPct = optionalAmount(parsed.plannerPct);
-
-      var savedByKey = {};
-      parsed.categories.forEach(function(c){
-        if (c && c.key) savedByKey[c.key] = c;
-      });
-      fresh.categories.forEach(function(c){
-        var savedCat = savedByKey[c.key];
-        if (!savedCat) return;
-        c.low = optionalAmount(savedCat.low);
-        c.high = c.low;
-      });
-      return fresh;
-    } catch (e) {
-      return cloneOriginal();
-    }
+      return saved ? mergeState(JSON.parse(saved)) : cloneOriginal();
+    } catch (e) { return cloneOriginal(); }
   }
 
   function saveState(){
@@ -144,11 +142,9 @@
       .then(function(r){ if (!r.ok) throw new Error("no remote data"); return r.json(); })
       .then(function(remote){
         if (!remote || !Array.isArray(remote.categories)) return;
-        state = remote;
-        state.categories.forEach(function(c){ c.high = c.low; });
+        state = mergeState(remote);
         document.getElementById("guestCount").value = state.guestCount;
         document.getElementById("totalBudget").value = inputValue(state.totalBudget);
-        document.getElementById("contingencyPct").value = inputValue(state.contingencyPct);
         document.getElementById("plannerPct").value = inputValue(state.plannerPct);
         buildRows();
         recalc(false, false);
@@ -187,7 +183,10 @@
     state.categories.forEach(function(cat, i){
       var tr = document.createElement("tr");
 
-      var lowCell = '<td class="num" data-label="Estimated Cost"><div class="cell-currency"><span>$</span><input type="number" step="any" min="0" aria-label="Estimated cost for ' + cat.name + '" data-idx="' + i + '" data-field="low" value="' + inputValue(cat.low) + '"></div></td>';
+      var isConfirmed = String(cat.status || "").toLowerCase() === "confirmed";
+      var lowCell = isConfirmed
+        ? '<td class="num locked" data-label="Estimated Cost"><span class="static-currency">' + (cat.low === null ? "—" : fmtUSD0.format(cat.low)) + '</span></td>'
+        : '<td class="num" data-label="Estimated Cost"><div class="cell-currency"><span>$</span><input type="number" step="any" min="0" aria-label="Estimated cost for ' + cat.name + '" data-idx="' + i + '" data-field="low" value="' + inputValue(cat.low) + '"></div></td>';
       var highCell = '';
 
       var displayStatus = cat.status;
@@ -265,8 +264,9 @@
     var sumLow = 0, sumHigh = 0;
     state.categories.forEach(function(c){ sumLow += (+c.low || 0); sumHigh += (+c.high || 0); });
 
-    var contingencyLow  = (hasBudget && state.contingencyPct !== null) ? totalBudget * (state.contingencyPct / 100) : 0;
-    var contingencyHigh = contingencyLow;
+    // Contingency is already listed as a category above, so it is not added again here.
+    var contingencyLow  = 0;
+    var contingencyHigh = 0;
 
     var subtotalLow  = sumLow  + contingencyLow;
     var subtotalHigh = sumHigh + contingencyHigh;
@@ -291,7 +291,6 @@
       cell.textContent = hasBudget && totalBudget > 0 && c.low !== null ? fmtPct1(pct) : "—";
     });
 
-    document.getElementById("contingencyLowOut").textContent  = hasBudget && state.contingencyPct !== null ? fmtUSD0.format(contingencyLow) : "—";
     document.getElementById("subtotalLowOut").textContent  = fmtUSD0.format(subtotalLow);
     document.getElementById("subtotalPctOut").textContent  = totalBudget > 0 ? fmtPct1(((subtotalLow+subtotalHigh)/2)/totalBudget) : "—";
     document.getElementById("plannerLowOut").textContent  = state.plannerPct !== null ? fmtUSD0.format(plannerLow) : "—";
@@ -350,7 +349,6 @@
     var items = state.categories.map(function(c){
       return { name:c.name, avg:(c.low + c.high)/2 };
     });
-    items.push({ name:"Contingency", avg:(contingencyLow+contingencyHigh)/2 });
     items.push({ name:"Planner & Coordination Fee", avg:(plannerLow+plannerHigh)/2 });
     items = items.filter(function(i){ return i.avg > 0; });
     items.sort(function(a,b){ return b.avg - a.avg; });
@@ -377,10 +375,6 @@
   });
   document.getElementById("totalBudget").addEventListener("input", function(e){
     state.totalBudget = optionalAmount(e.target.value);
-    recalc();
-  });
-  document.getElementById("contingencyPct").addEventListener("input", function(e){
-    state.contingencyPct = optionalAmount(e.target.value);
     recalc();
   });
   document.getElementById("plannerPct").addEventListener("input", function(e){
@@ -415,7 +409,6 @@
     clearSavedState();
     document.getElementById("guestCount").value = state.guestCount;
     document.getElementById("totalBudget").value = inputValue(state.totalBudget);
-    document.getElementById("contingencyPct").value = inputValue(state.contingencyPct);
     document.getElementById("plannerPct").value = inputValue(state.plannerPct);
     buildRows();
     recalc(false, true);
@@ -425,7 +418,6 @@
   // Restore saved values into the visible controls on page load.
   document.getElementById("guestCount").value = state.guestCount;
   document.getElementById("totalBudget").value = inputValue(state.totalBudget);
-  document.getElementById("contingencyPct").value = inputValue(state.contingencyPct);
   document.getElementById("plannerPct").value = inputValue(state.plannerPct);
 
   buildRows();

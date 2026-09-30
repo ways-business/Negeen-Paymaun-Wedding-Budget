@@ -18,7 +18,7 @@
     <div class="masthead-row">
       <div class="masthead-text">
         <img class="brand-logo-inline" src="assets/logo.svg" alt="Maison De La Fork">
-        <h1 style="line-height:1.2; letter-spacing:0;">Negeen &amp; Paymaun<br>Wedding</h1>
+        <h1 style="line-height:1.2; letter-spacing:0;"><span class="title-negeen">Negeen</span> <span class="title-paymaun">&amp; Paymaun</span><br><span class="title-wedding">Wedding</span></h1>
         <span class="brand-sub">Wedding Planning Atelier</span>
   <p class="masthead-note">Crafting every detail,<br>from vision to celebration.</p>
 
@@ -33,7 +33,7 @@
     </div>
     <div class="summary-field">
       <label for="totalBudget">Total budget</label>
-      <div class="currency-input"><span>$</span><input type="number" id="totalBudget" value="150000" min="0" step="any" aria-label="Total budget"></div>
+      <div class="currency-input"><span>$</span><input type="number" id="totalBudget" value="200000" min="0" step="any" aria-label="Total budget"></div>
     </div>
     <div class="summary-readout">
       <span class="readout-label">Costs entered so far</span>
@@ -49,7 +49,7 @@
 
     <section class="table-panel">
       <h2>Category Breakdown</h2>
-      <p class="panel-sub">Confirmed and estimated costs from the September 29, 2026 planning worksheet.</p>
+      <p class="panel-sub">Confirmed and estimated costs from the September 30, 2026 planning worksheet.</p>
       <div class="table-scroll">
         <table>
           <thead>
@@ -62,14 +62,6 @@
           </thead>
           <tbody id="categoryBody"></tbody>
           <tfoot>
-            <tr class="row-editable">
-              <td class="cat-name" data-label="Category">Contingency (listed above)
-                <input type="hidden" id="contingencyPct" value="" aria-hidden="true">
-              </td>
-              <td class="num locked" id="contingencyLowOut" data-label="Estimated Cost">—</td>
-              <td class="num pct" data-label="% of budget">—</td>
-              <td data-label="Status"></td>
-            </tr>
             <tr class="row-subtotal">
               <td class="cat-name" data-label="Category">Subtotal</td>
               <td class="num" id="subtotalLowOut" data-label="Estimated Cost">—</td>
